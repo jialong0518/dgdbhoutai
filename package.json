@@ -1,0 +1,18 @@
+{
+  "name": "mysys",
+  "version": "1.0.0",
+  "description": "dgdbhoutai",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "private": true,
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "moment": "^2.29.1",
+    "mysql": "^2.18.1"
+  }
+}
