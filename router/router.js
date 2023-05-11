@@ -126,7 +126,7 @@ router.get('/userlist', (req, res) => {
         }
     }
     let start = (req.query.pages - 1 ) * req.query.pagesize;
-    let end = req.query.pages * req.query.pagesize;
+    let end = req.query.pagesize;
     // let sql = `select phone,name,date,id from user ${sql_} limit ${start} , ${end}`
     let sql = `select a.*,b.* from 
     (select count(1) datacount from user  ${sql_}) a,
@@ -414,7 +414,7 @@ router.get('/customerlist', (req, res) => {
             }
         }
         let start = (req.query.pages - 1 ) * req.query.pagesize;
-        let end = req.query.pages * req.query.pagesize;
+        let end = req.query.pagesize;
         // let sql = `select phone,name,date,id from user ${sql_} limit ${start} , ${end}`
         let sql = `select a.*,b.* from 
         (select count(1) datacount from customer  ${sql_}) a,
@@ -657,7 +657,7 @@ router.get('/rechargeRecordList', (req, res) => {
             }
         }
         let start = (req.query.pages - 1 ) * req.query.pagesize;
-        let end = req.query.pages * req.query.pagesize;
+        let end = req.query.pagesize;
         // let sql = `select phone,name,date,id from user ${sql_} limit ${start} , ${end}`
         let sql = `select a.*,b.* from 
         (select count(1) datacount from rechargerecord  ${sql_}) a,
@@ -697,8 +697,8 @@ router.post('/plainConsumeRecord', (req, res) => {
         /////
         let body = eval ("(" + Object.keys(req.body) + ")")
         let date = body.date === '' ? moment().format("YYYY-MM-DD HH:mm:ss") :  body.date;
-        let sql = `INSERT INTO consumerecord (name,phone,oldBalance,oldOtherBalance,inventory,subTotal,reduceBalance,newOtherBalance,newBalance,buckleBalance,buckleOtherBalance,shouldBalance,date,operator,inventoryList,customerId,no,remarks) 
-        values ('${body.name}','${body.phone}','${body.oldBalance}','${body.oldOtherBalance}','${body.inventory}','${body.subTotal}','${body.reduceBalance}','${body.newOtherBalance}','${body.newBalance}','${body.buckleBalance}','${body.buckleOtherBalance}','${body.shouldBalance}','${date}','${body.operator}','${body.inventoryList}','${body.customerId}','${body.no}','${body.remarks}')`
+        let sql = `INSERT INTO consumerecord (name,phone,oldBalance,oldOtherBalance,inventory,subTotal,reduceBalance,newOtherBalance,newBalance,buckleBalance,buckleOtherBalance,shouldBalance,date,operator,inventoryList,customerId,no,remarks,payType) 
+        values ('${body.name}','${body.phone}','${body.oldBalance}','${body.oldOtherBalance}','${body.inventory}','${body.subTotal}','${body.reduceBalance}','${body.newOtherBalance}','${body.newBalance}','${body.buckleBalance}','${body.buckleOtherBalance}','${body.shouldBalance}','${date}','${body.operator}','${body.inventoryList}','${body.customerId}','${body.no}','${body.remarks}','${body.payType}')`
         db.query({
           sql: sql
         }, (err, results, fields) => {
@@ -733,8 +733,8 @@ router.post('/consumeRecord', (req, res) => {
         /////
         let body = eval ("(" + Object.keys(req.body) + ")")
         let date = body.date === '' ? moment().format("YYYY-MM-DD HH:mm:ss") :  body.date;
-        let sql1 = `INSERT INTO consumerecord (name,phone,oldBalance,oldOtherBalance,inventory,subTotal,reduceBalance,newOtherBalance,newBalance,buckleBalance,buckleOtherBalance,shouldBalance,date,operator,inventoryList,customerId,no,remarks) 
-                values ('${body.name}','${body.phone}','${body.oldBalance}','${body.oldOtherBalance}','${body.inventory}','${body.subTotal}','${body.reduceBalance}','${body.newOtherBalance}','${body.newBalance}','${body.buckleBalance}','${body.buckleOtherBalance}','${body.shouldBalance}','${date}','${body.operator}','${body.inventoryList}','${body.customerId}','${body.no}','${body.remarks}')`
+        let sql1 = `INSERT INTO consumerecord (name,phone,oldBalance,oldOtherBalance,inventory,subTotal,reduceBalance,newOtherBalance,newBalance,buckleBalance,buckleOtherBalance,shouldBalance,date,operator,inventoryList,customerId,no,remarks,payType) 
+                values ('${body.name}','${body.phone}','${body.oldBalance}','${body.oldOtherBalance}','${body.inventory}','${body.subTotal}','${body.reduceBalance}','${body.newOtherBalance}','${body.newBalance}','${body.buckleBalance}','${body.buckleOtherBalance}','${body.shouldBalance}','${date}','${body.operator}','${body.inventoryList}','${body.customerId}','${body.no}','${body.remarks}','${body.payType}')`
         let sql2 = `UPDATE customer SET balance='${body.newBalance}',otherBalance='${body.newOtherBalance}' WHERE id=${body.customerId}`
         //开启一个事务
         db.beginTransaction(function (err) {
@@ -821,7 +821,7 @@ router.get('/consumeRecordList', (req, res) => {
             }
         }
         let start = (req.query.pages - 1 ) * req.query.pagesize;
-        let end = req.query.pages * req.query.pagesize;
+        let end = req.query.pagesize;
         // let sql = `select phone,name,date,id from user ${sql_} limit ${start} , ${end}`
         let sql = `select a.*,b.* from 
         (select count(1) datacount from consumerecord  ${sql_}) a,
@@ -876,8 +876,16 @@ router.get('/productlist', (req, res) => {
                 sql_ += `and no like '%${req.query.no}%'`
             }
         }
+        if(req.query.type !== ''){
+            if(sql_ == ''){
+                sql_ += `where type like '%${req.query.type}%'`
+            } else {
+                sql_ += `and type like '%${req.query.type}%'`
+            }
+        }
+        
         let start = (req.query.pages - 1 ) * req.query.pagesize;
-        let end = req.query.pages * req.query.pagesize;
+        let end = req.query.pagesize;
         // let sql = `select phone,name,date,id from user ${sql_} limit ${start} , ${end}`
         let sql = `select a.*,b.* from
         (select count(1) datacount from product ${sql_}) a,
@@ -925,7 +933,7 @@ router.post('/addProduct', (req, res) => {
         }
         /////
         let no = 'c' + new Date().getTime().toString().slice(9,12) + moment().format("YYYYMMDDHHmmss")
-        let sql = `INSERT INTO product (name,date,no,price,editDate) values ('${body.name}','${moment().format("YYYY-MM-DD HH:mm:ss")}','${no}','${body.price}','${moment().format("YYYY-MM-DD HH:mm:ss")}')`
+        let sql = `INSERT INTO product (name,date,no,price,editDate,type) values ('${body.name}','${moment().format("YYYY-MM-DD HH:mm:ss")}','${no}','${body.price}','${moment().format("YYYY-MM-DD HH:mm:ss")}','${body.type}')`
         
         db.query({
         sql: sql
@@ -960,7 +968,7 @@ router.post('/productInfor', (req, res) => {
         }
         /////
         let body = eval ("(" + Object.keys(req.body) + ")")
-        let sql = `select name,no,id,price from product where id = "${body.id}"`
+        let sql = `select name,no,id,price,type from product where id = "${body.id}"`
         db.query({
         sql: sql
         }, (err, results, fields) => {
@@ -994,7 +1002,7 @@ router.post('/productedit', (req, res) => {
         }
         /////
         let body = eval ("(" + Object.keys(req.body) + ")")
-        let sql = `UPDATE product SET name='${body.name}',price='${body.price}',editDate='${moment().format("YYYY-MM-DD HH:mm:ss")}' WHERE id=${body.id}`
+        let sql = `UPDATE product SET name='${body.name}',price='${body.price}',editDate='${moment().format("YYYY-MM-DD HH:mm:ss")}',type='${body.type}' WHERE id=${body.id}`
         db.query({
           sql: sql
         }, (err, results, fields) => {
@@ -1077,6 +1085,161 @@ router.post('/productdel', (req, res) => {
     })();
 })
 
+
+// 产品分类列表
+router.get('/producttypelist', (req, res) => {
+    (async function () {
+        let result_ = await query(db, `select name,phone,token from user where token = "${req.headers.token}"`);
+        console.log(result_)
+        if(result_.length === 0){
+            res.json({
+                code: 1,
+                msg: '登录失效请重新登录'
+            })
+            return
+        }
+        /////
+        let sql_ = ''
+        if(req.query.name !== ''){
+            if(sql_ == ''){
+                sql_ += `where name like '%${req.query.name}%'`
+            } else {
+                sql_ += `and name like '%${req.query.name}%'`
+            }
+        }
+        let start = (req.query.pages - 1 ) * req.query.pagesize;
+        let end = req.query.pagesize;
+        // let sql = `select phone,name,date,id from user ${sql_} limit ${start} , ${end}`
+        let sql = `select a.*,b.* from
+        (select count(1) datacount from producttype ${sql_}) a,
+        (select * from producttype sga ${sql_} order by id desc,date desc limit ${start},${end}) b;`
+        db.query({
+        sql: sql
+        }, (err, results, fields) => {
+            if (err) {
+                res.json({
+                    code: 1,
+                    msg: err
+                })
+            } else {
+                res.json({
+                code: 200,
+                data: { data_list: results, datacount: results.length > 0 ? results[0].datacount : 0},
+                sql: sql
+                })
+            }
+        })
+    })();
+})
+
+//添加产品分类
+router.post('/addProductType', (req, res) => {
+    (async function () {
+        let result_ = await query(db, `select name,phone,token from user where token = "${req.headers.token}"`);
+        console.log(result_)
+        if(result_.length === 0){
+            res.json({
+                code: 1,
+                msg: '登录失效请重新登录'
+            })
+            return
+        }
+
+        let body = eval ("(" + Object.keys(req.body) + ")")
+        let productStart = await query(db, `select name from producttype where name = "${body.name}"`);
+        if(productStart.length !== 0){
+            res.json({
+                code: 1,
+                msg: '产品分类重复'
+            })
+            return
+        }
+        /////
+        let no = 'c' + new Date().getTime().toString().slice(9,12) + moment().format("YYYYMMDDHHmmss")
+        let sql = `INSERT INTO producttype (name,date,remarks) values ('${body.name}','${moment().format("YYYY-MM-DD HH:mm:ss")}','${body.remarks}')`
+        
+        db.query({
+        sql: sql
+        }, (err, results, fields) => {
+            if (err) {
+                res.json({
+                    code: 1,
+                    msg: err
+                })
+            } else {
+                res.json({
+                code: 200,
+                data: results.length > 0 ? results[0] : {},
+                sql: sql
+                })
+            }
+        })
+    })();
+})
+
+//修改分类信息
+router.post('/producttypeedit', (req, res) => {
+    (async function () {
+        let result_ = await query(db, `select name,phone,token from user where token = "${req.headers.token}"`);
+        console.log(result_)
+        if(result_.length === 0){
+            res.json({
+                code: 1,
+                msg: '登录失效请重新登录'
+            })
+            return
+        }
+        /////
+        let body = eval ("(" + Object.keys(req.body) + ")")
+        let sql = `UPDATE producttype SET name='${body.name}',remarks='${body.remarks}',date='${moment().format("YYYY-MM-DD HH:mm:ss")}' WHERE id=${body.id}`
+        db.query({
+          sql: sql
+        }, (err, results, fields) => {
+            if (err) {
+                res.json({
+                    code: 1,
+                    msg: err
+                  })
+              } else {
+                res.json({
+                  code: 200,
+                  data: results.insertId,
+                  sql: sql
+                })
+              }
+        })
+    })();
+})
+
+
+// 删除产品分类
+router.post('/producttypedel', (req, res) => {
+    (async function () {
+        let result_ = await query(db, `select name,phone,token from user where token = "${req.headers.token}"`);
+        console.log(result_)
+        if(result_.length === 0){
+            res.json({
+                code: 1,
+                msg: '登录失效请重新登录'
+            })
+            return
+        }
+        /////
+        let body = eval ("(" + Object.keys(req.body) + ")")
+        let sql = `DELETE FROM producttype WHERE id = '${body.id}'`
+        db.query(sql, (err, results, fields) => {
+        if (err) {
+            console.log(err)
+        } else {
+            res.json({
+            code: 200,
+            data: '删除成功',
+            sql: sql
+            })
+        }
+        })
+    })();
+})
 
 
 /////////////////////////////////////////////////
